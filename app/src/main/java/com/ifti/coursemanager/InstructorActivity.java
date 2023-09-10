@@ -85,8 +85,6 @@ public class InstructorActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences = getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
         int instructorId = sharedPreferences.getInt("USER_ID", -1);
 
-        Toast.makeText(InstructorActivity.this, "User ID: " + instructorId, Toast.LENGTH_SHORT).show();
-
         Cursor cursor = courseDB.getCoursesCursorByInstructorId(instructorId);
 //        Cursor cursor = courseDB.runQuery("SELECT * FROM COURSES WHERE INSTRUCTOR_ID = " + instructorId);
 

@@ -54,10 +54,12 @@ public class MainActivity extends AppCompatActivity {
                             Toast.makeText(MainActivity.this, "Signed-in As Student", Toast.LENGTH_SHORT).show();
                             Intent intent = new Intent(MainActivity.this, StudentActivity.class);
                             startActivity(intent);
+                            finish();
                         } else if ("Teacher".equals(userType)) {
                             Toast.makeText(MainActivity.this, "Signed-in As Teacher", Toast.LENGTH_SHORT).show();
                             Intent intent = new Intent(MainActivity.this, InstructorActivity.class);
                             startActivity(intent);
+                            finish();
                         } else {
                             Toast.makeText(MainActivity.this, "Invalid User Type", Toast.LENGTH_SHORT).show();
                         }

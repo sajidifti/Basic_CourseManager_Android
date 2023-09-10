@@ -146,8 +146,6 @@ public class CreateCourse extends AppCompatActivity {
                 SharedPreferences sharedPreferences = getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
                 int instructorId = sharedPreferences.getInt("USER_ID", -1);
 
-                Toast.makeText(CreateCourse.this, "ID: " + instructorId, Toast.LENGTH_SHORT).show();
-
                 // Validate that required fields are not empty
                 if (courseCode.isEmpty() || courseTitle.isEmpty() || capacityStr.isEmpty()
                         || startingDate.isEmpty() || mid1Date.isEmpty() || mid2Date.isEmpty()
@@ -168,13 +166,13 @@ public class CreateCourse extends AppCompatActivity {
 
                     if (newRowId != -1) {
                         // Course insertion successful
-                        Toast.makeText(CreateCourse.this, "Course created successfully!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(CreateCourse.this, "Course updated successfully!", Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(CreateCourse.this, InstructorActivity.class);
                         startActivity(intent);
                         finish(); // Return to the previous activity
                     } else {
                         // Course insertion failed
-                        Toast.makeText(CreateCourse.this, "Course creation failed. Please try again.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(CreateCourse.this, "Course update failed. Please try again.", Toast.LENGTH_SHORT).show();
                     }
 
                 } else {

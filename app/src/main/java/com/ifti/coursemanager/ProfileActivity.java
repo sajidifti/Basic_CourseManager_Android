@@ -19,6 +19,7 @@ public class ProfileActivity extends AppCompatActivity {
     private EditText emailEditText;
     private EditText universityEditText;
     private Button saveButton;
+    private Button backButton;
     int userId = -10;
 
     private CourseDB courseDB;
@@ -33,6 +34,7 @@ public class ProfileActivity extends AppCompatActivity {
         emailEditText = findViewById(R.id.emailEditText);
         universityEditText = findViewById(R.id.universityEditText);
         saveButton = findViewById(R.id.saveButton);
+        backButton = findViewById(R.id.backButton);
 
         courseDB = new CourseDB(this);
 
@@ -47,6 +49,32 @@ public class ProfileActivity extends AppCompatActivity {
                 updateProfileData();
             }
         });
+
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Retrieve the user_type from SharedPreferences
+                SharedPreferences sharedPreferences = getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
+                String userType = sharedPreferences.getString("USER_TYPE", null);
+
+                if (userType != null) {
+                    if ("Student".equals(userType)) {
+                        Intent intent = new Intent(ProfileActivity.this, StudentActivity.class);
+                        startActivity(intent);
+                        finish();
+                    } else if ("Teacher".equals(userType)) {
+                        Intent intent = new Intent(ProfileActivity.this, InstructorActivity.class);
+                        startActivity(intent);
+                        finish();
+                    } else {
+                        Toast.makeText(ProfileActivity.this, "Invalid User Type", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    // User type not found in SharedPreferences, handle appropriately
+                    Toast.makeText(ProfileActivity.this, "User Type Not Found", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
     private void retrieveUserProfile() {
@@ -54,9 +82,6 @@ public class ProfileActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences = getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
         userId = sharedPreferences.getInt("USER_ID", -1);
         Cursor cursor = courseDB.selectUserById(userId);
-
-        Toast.makeText(ProfileActivity.this, "ID: " + userId, Toast.LENGTH_SHORT).show();
-
 
 
         if (cursor != null && cursor.moveToFirst()) {
