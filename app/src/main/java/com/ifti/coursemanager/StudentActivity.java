@@ -1,6 +1,7 @@
 package com.ifti.coursemanager;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -11,10 +12,10 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class StudentActivity extends AppCompatActivity {
 
@@ -64,6 +65,7 @@ public class StudentActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 finish();
+                finishAffinity();
             }
         });
 
@@ -88,7 +90,7 @@ public class StudentActivity extends AppCompatActivity {
             return;
         }
 
-        while (cursor.moveToNext()){
+        while (cursor.moveToNext()) {
             int courseId = cursor.getInt(0);
             String courseCode = cursor.getString(1);
             String courseTitle = cursor.getString(2);
@@ -117,7 +119,16 @@ public class StudentActivity extends AppCompatActivity {
                 Intent in = new Intent(StudentActivity.this, CourseDetails.class);
                 in.putExtra("COURSE_ID", courses.get(position).id);
                 startActivity(in);
-//                finish();
+                finish();
+            }
+        });
+
+        coursesListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long id) {
+                String message = "Do you want to unroll course - " + courses.get(position).courseCode + " ?";
+                showDialog(message, "Unroll Course", courses.get(position).id);
+                return true;
             }
         });
     }
@@ -126,6 +137,38 @@ public class StudentActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences = getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
         int instructorId = sharedPreferences.getInt("USER_ID", -1);
         return instructorId;
+    }
+
+    private void showDialog(String message, String title, int key) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(message);
+        builder.setTitle(title);
+        builder.setCancelable(false).setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                CourseDB db = new CourseDB(getApplicationContext());
+                db.unenroll(getStudentId(), key);
+                dialog.cancel();
+//                loadData();
+                Intent intent = getIntent();
+                finish();
+                startActivity(intent);
+            }
+
+        }).setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int id) {
+                dialog.cancel();
+            }
+        });
+
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
+
+    public void onRestart() {
+        super.onRestart();
+        //adapter.notifyDataSetChanged();
+        loadData();
     }
 }
 

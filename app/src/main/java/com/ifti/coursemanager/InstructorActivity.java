@@ -1,6 +1,7 @@
 package com.ifti.coursemanager;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -11,6 +12,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.ArrayList;
@@ -80,7 +82,13 @@ public class InstructorActivity extends AppCompatActivity {
     private void loadData() {
         courses.clear();
 
-        Cursor cursor = courseDB.selectCoursesByInstructorId(getInstructorId());
+        SharedPreferences sharedPreferences = getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
+        int instructorId = sharedPreferences.getInt("USER_ID", -1);
+
+        Toast.makeText(InstructorActivity.this, "User ID: " + instructorId, Toast.LENGTH_SHORT).show();
+
+        Cursor cursor = courseDB.getCoursesCursorByInstructorId(instructorId);
+//        Cursor cursor = courseDB.runQuery("SELECT * FROM COURSES WHERE INSTRUCTOR_ID = " + instructorId);
 
         if (cursor.getCount() == 0) {
             Toast.makeText(InstructorActivity.this, "No Data", Toast.LENGTH_SHORT).show();
@@ -100,7 +108,7 @@ public class InstructorActivity extends AppCompatActivity {
             String classSchedule = cursor.getString(9);
             String labSchedule = cursor.getString(10);
 
-            Course course = new Course(courseId, courseCode, courseTitle, capacity, startingDate, mid1Date, mid2Date, finalExamDate, credits, classSchedule, labSchedule, getInstructorId());
+            Course course = new Course(courseId, courseCode, courseTitle, capacity, startingDate, mid1Date, mid2Date, finalExamDate, credits, classSchedule, labSchedule, instructorId);
 
             courses.add(course);
 
@@ -119,12 +127,45 @@ public class InstructorActivity extends AppCompatActivity {
 //                finish();
             }
         });
-    }
 
-    private int getInstructorId() {
-        SharedPreferences sharedPreferences = getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
-        int instructorId = sharedPreferences.getInt("USER_ID", -1);
-        return instructorId;
+        coursesListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long id) {
+                String message = "Do you want to delete course - " + courses.get(position).courseCode + " ?";
+                showDialog(message, "Delete Course", courses.get(position).id);
+                return true;
+            }
+        });
+    }
+    private void showDialog(String message, String title, int key) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(message);
+        builder.setTitle(title);
+        builder.setCancelable(false).setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                CourseDB db = new CourseDB(getApplicationContext());
+                db.deleteCourse(key);
+                dialog.cancel();
+//                loadData();
+                Intent intent = getIntent();
+                finish();
+                startActivity(intent);
+            }
+
+        }).setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int id) {
+                dialog.cancel();
+            }
+        });
+
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
+    public void onRestart() {
+        super.onRestart();
+        //adapter.notifyDataSetChanged();
+        loadData();
     }
 }
 

@@ -46,6 +46,8 @@ public class CourseList extends AppCompatActivity {
         exitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Intent i = new Intent(CourseList.this, StudentActivity.class);
+                startActivity(i);
                 finish();
             }
         });

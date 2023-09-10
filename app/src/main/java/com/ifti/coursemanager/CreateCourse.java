@@ -161,29 +161,40 @@ public class CreateCourse extends AppCompatActivity {
                 int capacity = Integer.parseInt(capacityStr);
                 int credits = Integer.parseInt(creditsStr);
 
-                // Create a new course object with the captured details
-                long newRowId = 0;
+                if (courseId > 0){
+                    // Call the insertCourse method to insert the new course
+                    long newRowId = courseDB.updateCourse(courseId, courseCode, courseTitle, capacity, startingDate,
+                            mid1Date, mid2Date, finalExamDate, credits, classSchedule, labSchedule, instructorId);
 
-                if (courseId != -10) {
-                    // Insert the new course into the database
-                    newRowId = courseDB.insertCourse(courseCode, courseTitle, capacity, startingDate,
-                            mid1Date, mid2Date, finalExamDate, credits, classSchedule, labSchedule, instructorId);
+                    if (newRowId != -1) {
+                        // Course insertion successful
+                        Toast.makeText(CreateCourse.this, "Course created successfully!", Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(CreateCourse.this, InstructorActivity.class);
+                        startActivity(intent);
+                        finish(); // Return to the previous activity
+                    } else {
+                        // Course insertion failed
+                        Toast.makeText(CreateCourse.this, "Course creation failed. Please try again.", Toast.LENGTH_SHORT).show();
+                    }
+
                 } else {
-                    newRowId = courseDB.updateCourse(courseId, courseCode, courseTitle, capacity, startingDate,
+                    // Call the insertCourse method to insert the new course
+                    long newRowId = courseDB.insertCourse(courseCode, courseTitle, capacity, startingDate,
                             mid1Date, mid2Date, finalExamDate, credits, classSchedule, labSchedule, instructorId);
+
+                    if (newRowId != -1) {
+                        // Course insertion successful
+                        Toast.makeText(CreateCourse.this, "Course created successfully!", Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(CreateCourse.this, InstructorActivity.class);
+                        startActivity(intent);
+                        finish(); // Return to the previous activity
+                    } else {
+                        // Course insertion failed
+                        Toast.makeText(CreateCourse.this, "Course creation failed. Please try again.", Toast.LENGTH_SHORT).show();
+                    }
                 }
 
 
-                if (newRowId != -1) {
-                    // Course insertion successful
-                    Toast.makeText(CreateCourse.this, "Course created successfully!", Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(CreateCourse.this, InstructorActivity.class);
-                    startActivity(intent);
-                    finish(); // Return to the previous activity
-                } else {
-                    // Course insertion failed
-                    Toast.makeText(CreateCourse.this, "Course creation failed. Please try again.", Toast.LENGTH_SHORT).show();
-                }
             }
         });
 

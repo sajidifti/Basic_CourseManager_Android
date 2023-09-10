@@ -24,7 +24,9 @@ public class CourseDB extends SQLiteOpenHelper {
         String CoursesSQL = "CREATE TABLE " + "COURSES" + "(" + "ID" + " INTEGER PRIMARY KEY AUTOINCREMENT, " + "COURSE_CODE" + " TEXT NOT NULL, " + "COURSE_TITLE" + " TEXT NOT NULL, " + "CAPACITY" + " INTEGER, " + "STARTING_DATE" + " TEXT, " + "MID_1_DATE" + " TEXT, " + "MID_2_DATE" + " TEXT, " + "FINAL_EXAM_DATE" + " TEXT, " + "CREDITS" + " INTEGER, " + "CLASS_SCHEDULE" + " TEXT, " + "LAB_SCHEDULE" + " TEXT, " + "INSTRUCTOR_ID" + " INTEGER)";
 
         // Create Enrollments table SQL statement
-        String EnrollmentsSQL = "CREATE TABLE " + "ENROLLMENTS" + "(" + "ID" + " INTEGER PRIMARY KEY AUTOINCREMENT, " + "STUDENT_ID" + " INTEGER, " + "COURSE_ID" + " INTEGER)";
+        // Create Enrollments table SQL statement with CASCADE CONSTRAINTS
+        String EnrollmentsSQL = "CREATE TABLE " + "ENROLLMENTS" + "(" + "ID" + " INTEGER PRIMARY KEY AUTOINCREMENT, " + "STUDENT_ID" + " INTEGER, " + "COURSE_ID" + " INTEGER, " + "FOREIGN KEY (COURSE_ID) REFERENCES COURSES(ID) ON DELETE CASCADE)";
+
 
         // Execute SQL
         db.execSQL(UsersSQL);
@@ -84,7 +86,7 @@ public class CourseDB extends SQLiteOpenHelper {
         return numRowsAffected;
     }
 
-    // Method to insert course data into the "COURSES" table
+    // Method to insert a new course into the "COURSES" table
     public long insertCourse(String courseCode, String courseTitle, int capacity, String startingDate, String mid1Date, String mid2Date, String finalExamDate, int credits, String classSchedule, String labSchedule, int instructorId) {
         SQLiteDatabase db = this.getWritableDatabase();
         long newRowId = -1;
@@ -110,6 +112,7 @@ public class CourseDB extends SQLiteOpenHelper {
 
         return newRowId;
     }
+
 
     // Method to update course data in the "COURSES" table
     public long updateCourse(int courseId, String courseCode, String courseTitle, int capacity, String startingDate, String mid1Date, String mid2Date, String finalExamDate, int credits, String classSchedule, String labSchedule, int instructorId) {
@@ -225,7 +228,7 @@ public class CourseDB extends SQLiteOpenHelper {
             String[] projection = {"ID", "COURSE_CODE", "COURSE_TITLE", "CAPACITY", "STARTING_DATE", "MID_1_DATE", "MID_2_DATE", "FINAL_EXAM_DATE", "CREDITS", "CLASS_SCHEDULE", "LAB_SCHEDULE"};
 
             // Define the WHERE clause to filter courses by instructor ID
-            String selection = "ID = ?";
+            String selection = "INSTRUCTOR_ID = ?";
             String[] selectionArgs = {String.valueOf(instructorId)};
 
             // Query the "COURSES" table to retrieve courses for the specified instructor
@@ -235,6 +238,21 @@ public class CourseDB extends SQLiteOpenHelper {
         }
 
         return cursor;
+    }
+
+    // Method to retrieve a cursor containing courses taught by a specific instructor
+    public Cursor getCoursesCursorByInstructorId(int instructorId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        // Define the columns you want to retrieve
+        String[] projection = {"ID", "COURSE_CODE", "COURSE_TITLE", "CAPACITY", "STARTING_DATE", "MID_1_DATE", "MID_2_DATE", "FINAL_EXAM_DATE", "CREDITS", "CLASS_SCHEDULE", "LAB_SCHEDULE"};
+
+        // Define the WHERE clause to filter courses by instructor ID
+        String selection = "INSTRUCTOR_ID = ?";
+        String[] selectionArgs = {String.valueOf(instructorId)};
+
+        // Query the "COURSES" table to retrieve courses for the specified instructor
+        return db.query("COURSES", projection, selection, selectionArgs, null, null, null);
     }
 
 
@@ -354,9 +372,7 @@ public class CourseDB extends SQLiteOpenHelper {
             String[] projection = {"COURSES.ID", "COURSE_CODE", "COURSE_TITLE", "CAPACITY", "STARTING_DATE", "MID_1_DATE", "MID_2_DATE", "FINAL_EXAM_DATE", "CREDITS", "CLASS_SCHEDULE", "LAB_SCHEDULE", "INSTRUCTOR_ID"};
 
             // Define the JOIN statement to combine the "COURSES" and "ENROLLMENTS" tables
-            String joinQuery = "SELECT * FROM COURSES " +
-                    "INNER JOIN ENROLLMENTS ON COURSES.ID = ENROLLMENTS.COURSE_ID " +
-                    "WHERE ENROLLMENTS.STUDENT_ID = ?";
+            String joinQuery = "SELECT * FROM COURSES " + "INNER JOIN ENROLLMENTS ON COURSES.ID = ENROLLMENTS.COURSE_ID " + "WHERE ENROLLMENTS.STUDENT_ID = ?";
 
             // Define the selection arguments
             String[] selectionArgs = {String.valueOf(studentId)};

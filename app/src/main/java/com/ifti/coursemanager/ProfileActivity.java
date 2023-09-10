@@ -52,8 +52,11 @@ public class ProfileActivity extends AppCompatActivity {
     private void retrieveUserProfile() {
         // Retrieve user profile data from SharedPreferences or your database
         SharedPreferences sharedPreferences = getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
-        userId = sharedPreferences.getInt("USER_ID", 0);
+        userId = sharedPreferences.getInt("USER_ID", -1);
         Cursor cursor = courseDB.selectUserById(userId);
+
+        Toast.makeText(ProfileActivity.this, "ID: " + userId, Toast.LENGTH_SHORT).show();
+
 
 
         if (cursor != null && cursor.moveToFirst()) {
